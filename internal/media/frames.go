@@ -90,6 +90,15 @@ func ExtractFrames(ctx context.Context, src string, times []float64, opts Extrac
 				errs[i] = fmt.Errorf("t=%.3f: %w: %s", t, err, strings.TrimSpace(string(b)))
 				return
 			}
+			// ffmpeg exits 0 having written nothing when the seek lands past the last
+			// frame's timestamp. Fall back to an EOF-relative seek, which always
+			// resolves to a real frame, before calling it an error.
+			if _, err := os.Stat(out); err != nil {
+				if err := extractLastFrame(ctx, bin, src, out, opts); err != nil {
+					errs[i] = fmt.Errorf("t=%.3f: ffmpeg wrote no frame and the end of the clip could not be read: %w", t, err)
+					return
+				}
+			}
 			frames[i] = Frame{Index: i + 1, T: t, Path: out}
 		}(i, t)
 	}
@@ -117,4 +126,27 @@ func stampSlug(t float64) string {
 		return fmt.Sprintf("%dh%02dm%02ds%03d", h, m, s, milli)
 	}
 	return fmt.Sprintf("%dm%02ds%03d", m, s, milli)
+}
+
+// extractLastFrame grabs the final frame with an EOF-relative seek.
+func extractLastFrame(ctx context.Context, bin, src, out string, opts ExtractOpts) error {
+	args := []string{"-nostdin", "-y", "-loglevel", "error", "-sseof", "-0.2", "-i", src, "-frames:v", "1"}
+	if opts.Width > 0 {
+		args = append(args, "-vf", fmt.Sprintf("scale=%d:-2", opts.Width))
+	}
+	if !opts.PNG {
+		q := opts.Quality
+		if q <= 0 {
+			q = 2
+		}
+		args = append(args, "-q:v", strconv.Itoa(q))
+	}
+	args = append(args, "-update", "1", out)
+	if b, err := exec.CommandContext(ctx, bin, args...).CombinedOutput(); err != nil {
+		return fmt.Errorf("%w: %s", err, strings.TrimSpace(string(b)))
+	}
+	if _, err := os.Stat(out); err != nil {
+		return err
+	}
+	return nil
 }

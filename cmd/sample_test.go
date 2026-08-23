@@ -1,6 +1,10 @@
 package cmd
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/langgerone/dziga/internal/media"
+)
 
 func TestSceneTimesLandJustAfterTheCut(t *testing.T) {
 	got := sceneTimes([]float64{3.2, 8.0, 3.25}, 0, 10)
@@ -40,12 +44,39 @@ func TestSubsampleKeepsEndpoints(t *testing.T) {
 }
 
 func TestClampAllStaysInsideTheClip(t *testing.T) {
-	got := clampAll([]float64{-5, 2, 100}, 10)
+	info := &media.Info{Duration: 10, FPS: 25}
+	got := clampAll([]float64{-5, 2, 100}, info)
 	if got[0] != 0 {
 		t.Errorf("negative not clamped: %v", got[0])
 	}
 	if got[2] > 10 {
 		t.Errorf("past the end not clamped: %v", got[2])
+	}
+}
+
+// ffmpeg matches the first frame at or after the seek target, so the real ceiling is
+// the last frame's timestamp. On a 2s clip at 6fps that is 1.833: ask for 1.917 and
+// ffmpeg exits 0 having written no file at all.
+func TestClampAllStopsAtTheLastFrameNotTheDuration(t *testing.T) {
+	info := &media.Info{Duration: 2, FPS: 6}
+	got := clampAll([]float64{1.9167}, info)
+	if got[0] > 1.8334 {
+		t.Errorf("clamped to %v, want the last frame at 1.833", got[0])
+	}
+	if got[0] < 1.8 {
+		t.Errorf("clamped to %v — that discards most of the final frame", got[0])
+	}
+}
+
+func TestLastFrameTimeHandlesUnknownRate(t *testing.T) {
+	if got := lastFrameTime(&media.Info{Duration: 5}); got <= 4.5 || got >= 5 {
+		t.Errorf("no fps: got %v, want just under the duration", got)
+	}
+	if got := lastFrameTime(&media.Info{}); got != 0 {
+		t.Errorf("unknown duration: got %v, want 0", got)
+	}
+	if got := lastFrameTime(nil); got != 0 {
+		t.Errorf("nil info: got %v", got)
 	}
 }
 

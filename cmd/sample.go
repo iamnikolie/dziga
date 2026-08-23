@@ -48,7 +48,7 @@ func resolveTimes(ctx context.Context, src *Source, info *media.Info, o sampleOp
 		if err != nil {
 			return nil, "", err
 		}
-		return clampAll(times, info.Duration), "at", nil
+		return clampAll(times, info), "at", nil
 
 	case o.every != "":
 		step, err := media.ParseTime(o.every)
@@ -65,7 +65,7 @@ func resolveTimes(ctx context.Context, src *Source, info *media.Info, o sampleOp
 		if len(times) == 0 {
 			times = []float64{from}
 		}
-		return clampAll(times, info.Duration), "every", nil
+		return clampAll(times, info), "every", nil
 
 	case o.useScenes:
 		cuts, err := media.DetectScenes(ctx, src.Path, o.threshold, 320)
@@ -76,18 +76,18 @@ func resolveTimes(ctx context.Context, src *Source, info *media.Info, o sampleOp
 		if len(times) == 0 {
 			// a single-shot clip is a legitimate answer, not a failure
 			statusf("scenes: no cuts above threshold %.2f — falling back to even sampling", o.threshold)
-			return media.Spread(from, to, o.n), "even", nil
+			return clampAll(media.Spread(from, to, o.n), info), "even", nil
 		}
 		if o.n > 0 && len(times) > o.n {
 			times = subsample(times, o.n)
 		}
-		return times, "scenes", nil
+		return clampAll(times, info), "scenes", nil
 
 	default:
 		if o.n < 1 {
 			return nil, "", fmt.Errorf("--n must be >= 1")
 		}
-		return media.Spread(from, to, o.n), "even", nil
+		return clampAll(media.Spread(from, to, o.n), info), "even", nil
 	}
 }
 
@@ -128,19 +128,37 @@ func subsample(in []float64, n int) []float64 {
 	return out
 }
 
-func clampAll(times []float64, duration float64) []float64 {
+// clampAll keeps sample points inside the clip. The ceiling is the *last frame's*
+// presentation time, not the duration: ffmpeg seeks to the first frame at or after
+// the target, so on a 2s clip at 6fps anything past 1.833 matches no frame at all
+// and ffmpeg exits 0 having written nothing.
+func clampAll(times []float64, info *media.Info) []float64 {
+	last := lastFrameTime(info)
 	out := make([]float64, 0, len(times))
 	for _, t := range times {
 		if t < 0 {
 			t = 0
 		}
-		if duration > 0 && t > duration-0.01 {
-			t = duration - 0.01
-			if t < 0 {
-				t = 0
-			}
+		if last > 0 && t > last {
+			t = last
 		}
 		out = append(out, t)
 	}
 	return out
+}
+
+// lastFrameTime is the presentation time of the final frame, or 0 when unknown.
+func lastFrameTime(info *media.Info) float64 {
+	if info == nil || info.Duration <= 0 {
+		return 0
+	}
+	step := 0.05
+	if info.FPS > 0 {
+		step = 1 / info.FPS
+	}
+	last := info.Duration - step
+	if last < 0 {
+		return 0
+	}
+	return last
 }

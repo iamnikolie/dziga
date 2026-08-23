@@ -1,0 +1,8 @@
+stages: [test]
+
+go-test:
+  stage: test
+  image: golang:1.26
+  script:
+    - go vet ./...
+    - go test ./...

@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/langgerone/dziga/internal/media"
-	"github.com/langgerone/dziga/internal/provider"
-	"github.com/langgerone/dziga/internal/sheet"
+	"github.com/iamnikolie/dziga/internal/media"
+	"github.com/iamnikolie/dziga/internal/provider"
+	"github.com/iamnikolie/dziga/internal/sheet"
 	"github.com/spf13/cobra"
 )
 

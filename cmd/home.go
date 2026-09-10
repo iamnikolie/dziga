@@ -1,6 +1,6 @@
 package cmd
 
-import "github.com/langgerone/dziga/internal/config"
+import "github.com/iamnikolie/dziga/internal/config"
 
 // homeDir is the dziga root (~/.dziga), where cross-profile state like the
 // upload cache lives.

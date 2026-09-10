@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/langgerone/dziga/internal/config"
+	"github.com/iamnikolie/dziga/internal/config"
 	"github.com/spf13/cobra"
 )
 

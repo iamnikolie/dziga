@@ -11,7 +11,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/langgerone/dziga/internal/config"
+	"github.com/iamnikolie/dziga/internal/config"
 )
 
 // Source is a resolved input clip: a local file, possibly fetched first.

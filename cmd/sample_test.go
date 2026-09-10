@@ -3,7 +3,7 @@ package cmd
 import (
 	"testing"
 
-	"github.com/langgerone/dziga/internal/media"
+	"github.com/iamnikolie/dziga/internal/media"
 )
 
 func TestSceneTimesLandJustAfterTheCut(t *testing.T) {

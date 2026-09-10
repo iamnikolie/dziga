@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/langgerone/dziga/internal/client"
+	"github.com/iamnikolie/dziga/internal/client"
 )
 
 const geminiBase = "https://generativelanguage.googleapis.com/v1beta"

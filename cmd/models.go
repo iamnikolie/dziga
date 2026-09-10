@@ -5,7 +5,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/langgerone/dziga/internal/registry"
+	"github.com/iamnikolie/dziga/internal/registry"
 	"github.com/spf13/cobra"
 )
 

@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/langgerone/dziga/internal/media"
-	"github.com/langgerone/dziga/internal/provider"
-	"github.com/langgerone/dziga/internal/registry"
-	"github.com/langgerone/dziga/internal/uploads"
+	"github.com/iamnikolie/dziga/internal/media"
+	"github.com/iamnikolie/dziga/internal/provider"
+	"github.com/iamnikolie/dziga/internal/registry"
+	"github.com/iamnikolie/dziga/internal/uploads"
 	"github.com/spf13/cobra"
 )
 

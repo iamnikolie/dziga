@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/langgerone/dziga/internal/media"
+	"github.com/iamnikolie/dziga/internal/media"
 	"github.com/spf13/cobra"
 )
 

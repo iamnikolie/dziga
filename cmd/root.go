@@ -9,9 +9,9 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/langgerone/dziga/internal/client"
-	"github.com/langgerone/dziga/internal/config"
-	"github.com/langgerone/dziga/internal/registry"
+	"github.com/iamnikolie/dziga/internal/client"
+	"github.com/iamnikolie/dziga/internal/config"
+	"github.com/iamnikolie/dziga/internal/registry"
 	"github.com/spf13/cobra"
 )
 

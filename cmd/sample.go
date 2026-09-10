@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/langgerone/dziga/internal/media"
+	"github.com/iamnikolie/dziga/internal/media"
 )
 
 // sampleOpts is the shared "which moments do we look at" surface of sheet/frames.

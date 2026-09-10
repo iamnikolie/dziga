@@ -1,0 +1,86 @@
+# Model ids rot fast — they are data, never Go constants.
+#
+# Prices are USD per 1M tokens from ai.google.dev/gemini-api/docs/pricing,
+# verified 2026-08-23. Two rules keep them honest:
+#   * where Google published an introductory rate with an end date, both that rate
+#     and its successor are recorded; past the date with no successor the CLI
+#     prints cost≈? rather than a stale number;
+#   * the "-latest" aliases are deliberately priced through `assume`, and the real
+#     cost is always recomputed from the modelVersion the API actually served.
+default: flash
+
+# Measured on gemini-3.7-flash, 2026-08-23, against clips of known length:
+#   4s silent 1280x720 @ fps 1 → 264 video tokens (4 frames x 66)
+#   same clip @ fps 2          → 528 (8 x 66)
+#   same clip with aac audio   → 364 (264 + 4s x 25)
+#   10s silent 608x1080 @ fps1 → 660 (10 x 66); --res high → 2640 (10 x 264)
+# Frame cost did not vary with aspect, and medium measured identical to low.
+video:
+  tokens_per_frame:
+    default: 66
+    low: 66
+    medium: 66
+    high: 264
+  audio_tokens_per_sec: 25
+
+models:
+  flash:
+    id: gemini-flash-latest
+    provider: gemini
+    assume: 3.7-flash
+    note: latest Flash (served gemini-3.7-flash on 2026-08-23)
+  pro:
+    id: gemini-pro-latest
+    provider: gemini
+    assume: 3.1-pro
+    note: latest Pro
+  flash-lite:
+    id: gemini-flash-lite-latest
+    provider: gemini
+    assume: 3.1-flash-lite
+    note: cheapest, for coarse "what is this clip" questions
+
+  3.7-flash:
+    id: gemini-3.7-flash
+    provider: gemini
+    price_in_per_1m: 0.75
+    price_out_per_1m: 3.75
+    price_until: "2026-12-31"
+    after:
+      price_in_per_1m: 1.50
+      price_out_per_1m: 7.50
+    note: intro rate doubles 2027-01-01
+  3.6-flash:
+    id: gemini-3.6-flash
+    provider: gemini
+    price_in_per_1m: 0.75
+    price_out_per_1m: 3.75
+    price_until: "2026-12-31"
+    after:
+      price_in_per_1m: 1.50
+      price_out_per_1m: 7.50
+  3.5-flash:
+    id: gemini-3.5-flash
+    provider: gemini
+    price_in_per_1m: 1.50
+    price_out_per_1m: 9.00
+  3.5-flash-lite:
+    id: gemini-3.5-flash-lite
+    provider: gemini
+    price_in_per_1m: 0.30
+    price_out_per_1m: 2.50
+  3.1-flash-lite:
+    id: gemini-3.1-flash-lite
+    provider: gemini
+    price_in_per_1m: 0.25
+    price_out_per_1m: 1.50
+    note: audio input is billed higher ($0.50/1M) — not modelled here
+  3.1-pro:
+    id: gemini-3.1-pro-preview
+    provider: gemini
+    price_in_per_1m: 2.00
+    price_out_per_1m: 12.00
+    long_threshold: 200000
+    long:
+      price_in_per_1m: 4.00
+      price_out_per_1m: 18.00

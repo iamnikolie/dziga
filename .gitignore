@@ -1,0 +1,17 @@
+# Build artifacts
+/dziga
+/dist/
+*.exe
+
+# Working output (frames, sheets, downloads)
+/work/
+/out/
+*.jpg
+*.png
+*.mp4
+
+# Local tooling state
+.claude/settings.local.json
+
+# macOS
+.DS_Store

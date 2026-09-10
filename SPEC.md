@@ -5,7 +5,7 @@ Agent-facing **video-reading** CLI. Sibling of `gengoya` (image/video *generatio
 spinning top, the pseudonym he took for the camera-crank; his *Kino-Eye* is the
 whole idea here: a machine eye that sees for someone who cannot.
 
-Module path: `github.com/langgerone/dziga`. Binary: `dziga`. Go 1.26.
+Module path: `github.com/iamnikolie/dziga`. Binary: `dziga`. Go 1.26.
 
 ---
 

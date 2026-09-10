@@ -34,7 +34,7 @@ internal/
 
 ## Conventions
 
-- Module `github.com/langgerone/dziga`; errors wrap as `pkg.Method: %w`
+- Module `github.com/iamnikolie/dziga`; errors wrap as `pkg.Method: %w`
 - Config is **optional** (unlike gengoya): local commands need no key at all, and
   `ask` falls back to `GEMINI_API_KEY`/`GOOGLE_API_KEY`
 - Model ids and prices are **data** (`registry.yaml`), never Go constants

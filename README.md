@@ -1,13 +1,18 @@
 # dziga
 
+[![CI](https://github.com/iamnikolie/dziga/actions/workflows/ci.yml/badge.svg)](https://github.com/iamnikolie/dziga/actions/workflows/ci.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/iamnikolie/dziga.svg)](https://pkg.go.dev/github.com/iamnikolie/dziga)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Turn a video into context an LLM can actually read.
 
 Named after Dziga Vertov — `дзиґа` is Ukrainian for a spinning top, the pseudonym he
 took for the crank of a movie camera. His *Kino-Eye* is the whole premise: a machine
 eye that sees for someone who cannot. An agent cannot watch video; this is its eye.
 
-Sibling of [`gengoya`](../gengoya) (image/video generation), `fibery` and `gl`: same
-doctrine — the CLI writes files and prints paths, the agent reads them.
+Sibling of [`fibery-cli`](https://github.com/iamnikolie/fibery-cli) and
+[`gitlab-cli`](https://github.com/iamnikolie/gitlab-cli): same doctrine — the CLI
+writes files and prints paths, the agent reads them.
 
 ## What it does
 
@@ -21,11 +26,40 @@ Two engines, deliberately separate:
 
 ## Install
 
+`ffmpeg` is required — everything local is built on it. `yt-dlp` is only needed
+if you pass URLs instead of local files.
+
 ```bash
-brew install ffmpeg        # required
-pip install yt-dlp         # only if you pass URLs
-make install               # → ~/.local/bin/dziga
+brew install ffmpeg        # or: apt install ffmpeg
+pip install yt-dlp         # optional
 ```
+
+Then pick one:
+
+**Prebuilt binary** — download the archive for your platform from
+[Releases](https://github.com/iamnikolie/dziga/releases):
+
+```bash
+tar xzf dziga_*_darwin_arm64.tar.gz
+sudo mv dziga /usr/local/bin/
+```
+
+**With Go** (1.24+):
+
+```bash
+go install github.com/iamnikolie/dziga@latest
+```
+
+**From source** — `make install` symlinks the binary, so a later `make build`
+updates the installed CLI without reinstalling:
+
+```bash
+git clone https://github.com/iamnikolie/dziga.git
+cd dziga
+make install               # symlink → ~/.local/bin/dziga
+```
+
+Check what you got with `dziga version`.
 
 ## Setup
 
@@ -40,6 +74,11 @@ dziga config show --config personal
 
 Config lives at `~/.dziga/<profile>/config.yaml` (mode 0600). `DZIGA_HOME` moves the
 root; `DZIGA_CONFIG` sets the default profile.
+
+The file is mode 0600 and holds the key in plain text — the same posture as
+`~/.aws/credentials` or a `.netrc`. `GEMINI_API_KEY` takes precedence if you
+would rather source it from a secret manager. The local commands (`probe`,
+`scenes`, `sheet`, `frames`) need no key and make no network calls at all.
 
 ## Usage
 
@@ -92,11 +131,28 @@ prints the estimate before you read it.
 ## Development
 
 ```bash
-make test
-make vet
-make build
+make test          # go test ./...
+make vet           # go vet ./...
+make fmt           # gofmt -w .
+make build         # build ./dziga, version stamped from git describe
+make install       # symlink to ~/.local/bin
 ```
+
+CI runs gofmt, `go vet` and `go test -race` on Linux and macOS for every push
+and pull request. Tests never touch the network or shell out to ffmpeg — they
+exercise the pure parts (sampling math, timecode formatting, sheet geometry).
 
 - `SPEC.md` — build contract and the live-verified API shapes.
 - `cmd/skill.md` — agent reference (embedded, `dziga skill`).
 - Model ids and prices are data in `internal/registry/registry.yaml`.
+
+## Contributing
+
+Issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+[MIT](LICENSE) © Mykola Klitovchenko
+
+Not affiliated with Google or the Gemini API; `ffmpeg` and `yt-dlp` are separate
+projects under their own licenses.
